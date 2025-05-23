@@ -54,6 +54,7 @@ Podfile.lock
 *.log
 *.db
 *.sqlite3
+logs/
 
 # Temporary files
 *.swp
@@ -65,3 +66,12 @@ Podfile.lock
 
 # macOS files
 .DS_Store
+
+# Compile commands (e.g., for clangd)
+compile_commands.json
+
+# Cache files
+.cache/
+
+# VSCode specific
+.vscode/
