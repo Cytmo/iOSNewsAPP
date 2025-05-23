@@ -122,7 +122,7 @@
 
     // 添加到视图
     [self.view addSubview:self.tableView];
-    [self.view addSubview:self.testButton];
+    // [self.view addSubview:self.testButton];
     // [self.view addSubview:self.tabBar];
 
     // 添加日志确认视图已加载
