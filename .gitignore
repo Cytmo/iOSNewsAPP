@@ -1,0 +1,67 @@
+# Xcode
+#
+# gitignore contributors: remember to keep this file simple and straightforward
+# Keep it general enough to support Xcode projects across platforms (macOS, iOS, tvOS, watchOS)
+# Thanks https://github.com/github/gitignore/blob/main/Global/Xcode.gitignore
+
+## User-specific
+*.xcuserdatad
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xccheckout
+*.moved-aside
+xcuserdata/
+
+## Build generated
+build/
+DerivedData/
+Index/DataStore/
+ModuleCache.noindex/
+
+## Various settings
+*.moved-aside
+*.xcuserstate
+
+## Obj-C/Swift specific
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# CocoaPods
+Pods/
+*.podspec.json
+Podfile.lock
+
+# Carthage
+# Carthage/Build
+# Carthage/Checkouts
+
+# fastlane
+# fastlane/report.xml
+# fastlane/Preview.html
+# fastlane/screenshots
+# fastlane/test_output
+
+# Swift Package Manager
+# .build/
+# Package.resolved
+# *.xcodeproj
+# *.xcworkspace
+
+# Logs and databases
+*.log
+*.db
+*.sqlite3
+
+# Temporary files
+*.swp
+*~
+*.orig
+
+# Local configuration files (if any)
+# .env
+
+# macOS files
+.DS_Store
