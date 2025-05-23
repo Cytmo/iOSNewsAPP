@@ -9,4 +9,8 @@
 
 @interface NewsTableViewCell : UITableViewCell
 
+@property (nonatomic, strong) UIImageView *newsImageView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UILabel *detailLabel;
+
 @end

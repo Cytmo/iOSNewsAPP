@@ -8,10 +8,9 @@
 #import "ViewController.h"
 #import "NewsDataItem.h"
 #import "NewsTableViewCell.h"
-#include "objc/NSObjCRuntime.h"
-#include <Foundation/Foundation.h>
+#import <Foundation/Foundation.h>
 #import <SDWebImage/SDWebImage.h>
-#include <UIKit/UIKit.h>
+#import <UIKit/UIKit.h>
 #define newsDataSrcURL "https://ranks.hao.360.com/mbsug-api/hotnewsquery?type=news&realhot_limit=15"
 @interface ViewController () <UITableViewDelegate, UITableViewDataSource, UITabBarDelegate>
 @property (nonatomic, strong) UITableView *tableView;
@@ -70,38 +69,44 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.newsItems = [NSMutableArray array]; // 初始化 newsItems 数组
-    [self getNewsData];
-
+    NSInteger res = [self getNewsData];
+    if (res)
+    {
+        NSLog(@"Error: Failed to fetch news data");
+        return;
+    }
     // 实例化tableview
     CGRect screenBounds = self.view.bounds;
-    CGFloat tabBarHeight = 50;
+    CGFloat tabBarHeight = 0;
     CGRect tableViewFrame =
         CGRectMake(0, 0, screenBounds.size.width, screenBounds.size.height - tabBarHeight);
     // 设置tabbar的遮罩
-    UIView *tabBarMaskView = [[UIView alloc] initWithFrame:screenBounds];
-    tabBarMaskView.backgroundColor = [UIColor whiteColor];
-    tabBarMaskView.alpha = 0.5; // 设置遮罩透明度
-    [self.view addSubview:tabBarMaskView];
+    // UIView *tabBarMaskView = [[UIView alloc] initWithFrame:screenBounds];
+    // tabBarMaskView.backgroundColor = [UIColor whiteColor];
+    // tabBarMaskView.alpha = 0.5; // 设置遮罩透明度
+    // [self.view addSubview:tabBarMaskView];
     // 设置tableview的frame
     self.tableView = [[UITableView alloc] initWithFrame:tableViewFrame
                                                   style:UITableViewStyleGrouped];
 
     // 放置TabBar在底部
-    CGRect tabBarFrame = CGRectMake(0, screenBounds.size.height - tabBarHeight,
-                                    screenBounds.size.width, tabBarHeight);
-    self.tabBar = [[UITabBar alloc] initWithFrame:tabBarFrame];
-    self.tabBar.backgroundColor = [UIColor whiteColor]; // 设置背景色
+    // CGRect tabBarFrame = CGRectMake(0, screenBounds.size.height - tabBarHeight,
+    //                                 screenBounds.size.width, tabBarHeight);
+    // self.tabBar = [[UITabBar alloc] initWithFrame:tabBarFrame];
+    // self.tabBar.backgroundColor = [UIColor whiteColor]; // 设置背景色
 
     // 创建TabBar项目
-    UITabBarItem *homeItem = [[UITabBarItem alloc] initWithTitle:@"首页"
-                                                           image:[UIImage systemImageNamed:@"house"]
-                                                             tag:0];
-    UITabBarItem *settingsItem =
-        [[UITabBarItem alloc] initWithTitle:@"设置" image:[UIImage systemImageNamed:@"gear"] tag:1];
+    // UITabBarItem *homeItem = [[UITabBarItem alloc] initWithTitle:@"首页"
+    //                                                        image:[UIImage
+    //                                                        systemImageNamed:@"house"]
+    //                                                          tag:0];
+    // UITabBarItem *settingsItem =
+    //     [[UITabBarItem alloc] initWithTitle:@"设置" image:[UIImage systemImageNamed:@"gear"]
+    //     tag:1];
 
     // 添加TabBar项目
-    [self.tabBar setItems:@[ homeItem, settingsItem ] animated:NO];
-    self.tabBar.selectedItem = homeItem; // 设置选中项
+    // [self.tabBar setItems:@[ homeItem, settingsItem ] animated:NO];
+    // self.tabBar.selectedItem = homeItem; // 设置选中项
 
     self.testButton = [UIButton buttonWithType:UIButtonTypeInfoLight];
     [self.testButton setTitle:@"点击我" forState:UIControlStateNormal];
@@ -134,6 +139,12 @@
     self.testButton.frame = CGRectMake(x, y, 100, 50);
     [self.view addSubview:self.testButton];
 }
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    // 设置固定的行高
+    return 100.0;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return self.newsItems.count;
@@ -181,18 +192,17 @@
         @catch (NSException *exception)
         {
             NSLog(@"数据解析错误: %@", exception.reason);
-            cell.textLabel.text = @"数据错误";
+            cell.titleLabel.text = @"数据错误";
             return cell;
         }
         if ([title isKindOfClass:[NSString class]] && [brieftxt isKindOfClass:[NSString class]])
         {
-            cell.textLabel.text = ![title isEqualToString:@""] ? title : @"未获取到内容";
-            cell.detailTextLabel.text =
-                ![brieftxt isEqualToString:@""] ? brieftxt : @"未获取到内容";
+            cell.titleLabel.text = ![title isEqualToString:@""] ? title : @"未获取到内容";
+            cell.detailLabel.text = ![brieftxt isEqualToString:@""] ? brieftxt : @"未获取到内容";
         }
         else
         {
-            cell.textLabel.text = @"无效标题";
+            cell.titleLabel.text = @"无效标题";
         }
         // 构造图片URL
         NSURL *imgURL = [NSURL URLWithString:newscard_imgurl];
@@ -200,34 +210,18 @@
         // 占位图
         // UIImage *placeholder = [UIImage imageNamed:@"placeholder"];
         UIImage *placeholder = [UIImage systemImageNamed:@"photo"]; // iOS 13+
-        // 调用 SDWebImage：如果 imgURL 为空或下载失败，都会显示 placeholder
-        [cell.imageView
-            sd_setImageWithURL:imgURL
-              placeholderImage:placeholder
-                       options:SDWebImageRetryFailed
-                     completed:^(UIImage *_Nullable image, NSError *_Nullable error,
-                                 SDImageCacheType cacheType, NSURL *_Nullable imageURL) {
-                         if (image && cell.imageView.image != image)
-                         {
-                             // 更新单元格，而不是整个表格
-                             dispatch_async(dispatch_get_main_queue(), ^{
-                                 //  [cell layoutIfNeeded];
-                                 // 立即刷新 Cell 布局
-                                 [cell layoutIfNeeded];
-                                 [tableView beginUpdates];
-                                 [tableView endUpdates];
-                             });
-                         }
-                     }];
+
+        // 调用 SDWebImage 加载图片
+        [cell.newsImageView sd_setImageWithURL:imgURL placeholderImage:placeholder];
     }
     else
     {
-        cell.textLabel.text = @"数据错误";
+        cell.titleLabel.text = @"数据错误";
     }
 
     return cell;
 }
-#pragma mark 点击行
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // 使用indexPath得到用户点击的行序号
